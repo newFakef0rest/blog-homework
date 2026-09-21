@@ -69,6 +69,18 @@ test("a valid blog can be added ", async () => {
   assert(titles.includes("new user"));
 });
 
+test("blog without content is not added", async () => {
+  const newBlog = {
+    author: "Pedro",
+  };
+
+  await api.post("/api/blogs").send(newBlog).expect(400);
+
+  const blogsAtEnd = await helper.blogsInDb();
+
+  assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
+});
+
 after(async () => {
   await mongoose.connection.close();
 });
