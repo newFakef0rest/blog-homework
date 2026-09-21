@@ -15,7 +15,7 @@ beforeEach(async () => {
   await Blog.insertMany(helper.initialBlogs);
 });
 
-test("notes are returned as json", async () => {
+test("blogs are returned as json", async () => {
   console.log("entered test");
   await api
     .get("/api/blogs")
@@ -23,10 +23,29 @@ test("notes are returned as json", async () => {
     .expect("Content-Type", /application\/json/);
 });
 
-test("all notes are returned", async () => {
+test("all blogs are returned", async () => {
   const response = await api.get("/api/blogs");
 
   assert.strictEqual(response.body.length, helper.initialBlogs.length);
+});
+
+test("a specific blog is within the returned blogs", async () => {
+  const response = await api.get("/api/blogs");
+
+  const titles = response.body.map((e) => e.title);
+  assert(titles.includes("emeas last hope"));
+});
+
+test("a specific blog can be viewed", async () => {
+  const blogsAtStart = await helper.blogsInDb();
+  const blogsToView = blogsAtStart[0];
+
+  const resultBlog = await api
+    .get(`/api/blogs/${blogsToView.id}`)
+    .expect(200)
+    .expect("Content-Type", /application\/json/);
+
+  assert.deepStrictEqual(resultBlog.body, blogsToView);
 });
 
 after(async () => {
