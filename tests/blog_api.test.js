@@ -69,8 +69,22 @@ test("a valid blog can be added ", async () => {
   assert(titles.includes("new user"));
 });
 
-test("blog without content is not added", async () => {
+test("blog without title is not added", async () => {
   const newBlog = {
+    author: "Pedro",
+    url: "something something",
+  };
+
+  await api.post("/api/blogs").send(newBlog).expect(400);
+
+  const blogsAtEnd = await helper.blogsInDb();
+
+  assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
+});
+
+test("blog without url is not added", async () => {
+  const newBlog = {
+    title: "New personality",
     author: "Pedro",
   };
 
