@@ -48,6 +48,27 @@ test("a specific blog can be viewed", async () => {
   assert.deepStrictEqual(resultBlog.body, blogsToView);
 });
 
+test("a valid blog can be added ", async () => {
+  const newBlog = {
+    title: "new user",
+    author: "personalized account",
+    url: "http://youtube",
+    likes: 99,
+  };
+
+  await api
+    .post("/api/blogs")
+    .send(newBlog)
+    .expect(201)
+    .expect("Content-Type", /application\/json/);
+
+  const blogsAtEnd = await helper.blogsInDb();
+  assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length + 1);
+
+  const titles = blogsAtEnd.map((n) => n.title);
+  assert(titles.includes("new user"));
+});
+
 after(async () => {
   await mongoose.connection.close();
 });
