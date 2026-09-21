@@ -6,6 +6,7 @@ const app = require("../app");
 
 const helper = require("./test_helper");
 const Blog = require("../models/blog");
+const blog = require("../models/blog");
 
 const api = supertest(app);
 
@@ -127,6 +128,30 @@ test("succeeds with status code 204 if id is valid", async () => {
   assert(!ids.includes(blogToDelete.id));
 
   assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length - 1);
+});
+
+test("updating a blog", async () => {
+  const blogsAtStart = await helper.blogsInDb();
+  const blogToChange = blogsAtStart[0];
+
+  const newBlog = {
+    title: "Sobaka",
+    author: "blablabla",
+    url: "djksal;dsa",
+    likes: 929392193,
+  };
+
+  await api
+    .put(`/api/blogs/${blogToChange.id}`)
+    .send(newBlog)
+    .expect(201)
+    .expect("Content-Type", /application\/json/);
+
+  const blogsAtEnd = await helper.blogsInDb();
+
+  const fetchedBlog = blogsAtEnd.find((blog) => blog.id === blogToChange.id);
+
+  assert.strictEqual(fetchedBlog.likes, newBlog.likes);
 });
 
 after(async () => {
