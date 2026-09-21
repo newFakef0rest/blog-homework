@@ -81,6 +81,26 @@ test("blog without content is not added", async () => {
   assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
 });
 
+test("check blog on amount of likes", async () => {
+  const newBlog = {
+    title: "Sobaka",
+    author: "blablabla",
+    url: "djksal;dsa",
+  };
+
+  const response = await api
+    .post("/api/blogs")
+    .send(newBlog)
+    .expect(201)
+    .expect("Content-Type", /application\/json/);
+
+  const fetchedBlogs = await helper.blogsInDb();
+
+  const fetchedBlog = fetchedBlogs.find((blog) => blog.id === response.body.id);
+
+  assert.strictEqual(fetchedBlog.likes, 0);
+});
+
 after(async () => {
   await mongoose.connection.close();
 });
